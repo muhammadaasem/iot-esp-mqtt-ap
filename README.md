@@ -1,6 +1,6 @@
-# iot-esp-mqtt-ap: ESP based IoT codebase with MQTT (for operation) and AP ( for OTA configuration)
+# iot-esp-mqtt-ap: 
 
-A brief description of what this project does and who it's for.
+ESP based IoT codebase leverages MQTT for operation (sending / receiving data) and AP for OTA configuration.
 
 
 ## Introduction
