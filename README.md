@@ -76,5 +76,5 @@ git clone https://github.com/muhammadaasem/iot-esp-mqtt-ap.git
 
 ## License
 
-[The license under which the project is made available. For example, MIT, GPL, etc.]
+GPL
 
