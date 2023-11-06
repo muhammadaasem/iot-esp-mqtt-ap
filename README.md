@@ -10,20 +10,12 @@ This project comprises an ESP8266-based system for IoT applications, providing a
 The project utilizes the ESP8266 microcontroller to establish WiFi connections and communicate with MQTT brokers for IoT device management. It is designed for hobbyists and developers looking for a quick way to integrate IoT functionalities into their projects.
 
 
-## Features
-
-# Project Title
-
-This project comprises an ESP8266-based system for IoT applications, providing a seamless interface for WiFi and MQTT connectivity to manage and control connected devices.
-
-## Introduction
-
-The project utilizes the ESP8266 microcontroller to establish WiFi connections and communicate with MQTT brokers for IoT device management. It is designed for hobbyists and developers looking for a quick way to integrate IoT functionalities into their projects.
-
-
 ## Requirements
+### Board
+- ESP8266 boards
 
-[Prerequisites, required libraries, OS version, etc.]
+### Libraries
+- PubSubClient by Nick O'Leary (doc)[https://pubsubclient.knolleary.net/]
 
 ## Installation
 
