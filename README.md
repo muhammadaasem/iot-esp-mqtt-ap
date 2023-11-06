@@ -1,2 +1,83 @@
-# iot-esp-mqtt-ap
-ESP based IoT codebase with MQTT (for operation) and AP ( for OTA configuration)
+# iot-esp-mqtt-ap: ESP based IoT codebase with MQTT (for operation) and AP ( for OTA configuration)
+
+A brief description of what this project does and who it's for.
+
+
+## Introduction
+
+This project comprises an ESP8266-based system for IoT applications, providing a seamless interface for WiFi and MQTT connectivity to manage and control connected devices.
+
+The project utilizes the ESP8266 microcontroller to establish WiFi connections and communicate with MQTT brokers for IoT device management. It is designed for hobbyists and developers looking for a quick way to integrate IoT functionalities into their projects.
+
+
+## Features
+
+# Project Title
+
+This project comprises an ESP8266-based system for IoT applications, providing a seamless interface for WiFi and MQTT connectivity to manage and control connected devices.
+
+## Introduction
+
+The project utilizes the ESP8266 microcontroller to establish WiFi connections and communicate with MQTT brokers for IoT device management. It is designed for hobbyists and developers looking for a quick way to integrate IoT functionalities into their projects.
+
+
+## Requirements
+
+[Prerequisites, required libraries, OS version, etc.]
+
+## Installation
+
+To set up this project, follow these steps:
+
+1. Clone the repository to your local machine:
+
+```sh
+git clone https://github.com/muhammadaasem/iot-esp-mqtt-ap.git
+```
+
+2. Open the project using the Arduino IDE or your preferred development environment.
+
+3. Ensure you have all the necessary libraries installed. You can install libraries through the Arduino IDE Library Manager or by downloading them from the respective repositories and placing them in your libraries folder.
+
+4. Update the `ConfigParams.h` file with your specific WiFi and MQTT broker details.
+
+5. Flash the code to your ESP8266 module using the correct board settings in the Arduino IDE.
+
+6. After uploading, the ESP8266 will start in Access Point mode. Connect to the ESP's network using the credentials set in `ConfigParams.h` to configure the device through the web interface.
+
+7. Once configured, the device will attempt to connect to the specified WiFi network and MQTT broker, and you can begin sending commands and receiving messages.
+
+For detailed instructions on library installation and board setup, refer to the official ESP8266 Arduino core documentation.
+
+## Usage
+
+### Connecting to the Access Point
+
+1. After flashing the ESP8266, it starts in Access Point (AP) mode. Use a Wi-Fi-enabled device to scan for new networks.
+2. Connect to the ESP's Wi-Fi network using the SSID and password defined in `ConfigParams.h`.
+3. Once connected, navigate to the ESP's IP address in a web browser. The default is usually `192.168.4.1`.
+4. A web form should appear, allowing you to enter the Wi-Fi and MQTT broker details.
+
+### Configuring Parameters
+
+1. In the web form, fill in the fields for your home Wi-Fi SSID and password.
+2. Provide the MQTT broker's domain or IP address, port, and topics for operation and configuration.
+3. After entering the details, click the 'Save' button to store the configuration in the EEPROM.
+4. Restart the ESP module to connect to your Wi-Fi and the MQTT broker with the new settings.
+
+### Testing with MQTTX
+
+1. Open MQTTX or any other MQTT client application.
+2. Create a new connection, and enter your MQTT broker's details.
+3. Subscribe to the topics you've set in the ESP configuration to listen for messages.
+4. Publish messages to the operation topic to see the ESP respond or act on the commands.
+5. Observe the incoming messages from the ESP on the subscribed topics.
+
+By following these steps, you can easily set up and test the MQTT communication with the ESP8266.
+
+[Acknowledgements of contributors and content creators.]
+
+## License
+
+[The license under which the project is made available. For example, MIT, GPL, etc.]
+
