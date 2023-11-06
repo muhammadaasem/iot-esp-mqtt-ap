@@ -55,7 +55,7 @@ git clone https://github.com/muhammadaasem/iot-esp-mqtt-ap.git
 
 ### Testing with MQTTX
 
-1. Open MQTTX](https://mqttx.app/) or any other MQTT client application.
+1. Open [MQTTX](https://mqttx.app/) or any other MQTT client application.
 2. Create a new connection, and enter your MQTT broker's details. (try with: broker.hivemq.com or broker.emqx.io)
 3. Subscribe to the topics you've set in the ESP configuration to listen for messages. (try with: testingESP1234/data)
 4. Publish messages to the operation topic to see the ESP respond or act on the commands.
