@@ -3,6 +3,7 @@
 #define ESP_COMMANDER_H
 
 #include <Arduino.h>
+#include <ArduinoJson.h>
 
 #define MAX_RELAYS 4
 
@@ -10,6 +11,7 @@ class ESPCommander {
 public:
   ESPCommander(int relayPins[]);
   void handleCommand(const String& command);
+  bool handleCommandJSON(const String& command);
   void begin();
 
 private:

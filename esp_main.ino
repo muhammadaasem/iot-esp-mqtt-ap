@@ -51,7 +51,7 @@ void setup() {
   apServer.begin();
 
   // Initialize the MQTT client
-  mqttClient.begin();
+  mqttClient.begin(); //BUG01: if ssid, pw, broker, etc are not in eeprom correctly, then infinite loop goes on.
 
   // Initialize commander
   // Remove commander.begin() if it does not exist in your ESPCommander class
@@ -61,15 +61,25 @@ void loop() {
   // Handle AP server client
   apServer.handleClient();
 
+
+
   // Handle MQTT client
   mqttClient.handleClient();
 
-  // Handle commander tasks
-  // You would typically have some logic to read commands and pass them to the commander
-  // For example:
-  // String command = readCommand(); // Implement readCommand to get commands from an input source
-  // commander.handleCommand(command);
+  // Check if a new MQTT message has been received
+  String command = mqttClient.getLastMessage();
+  if (command != "") {
+    // Pass the command to the commander
+    // commander.handleCommand(command); if its string only
+    commander.handleCommandJSON(command);
+
+
+    // Clear the last message to indicate it has been handled
+    mqttClient.setLastMessage("");
+  }
+
 
   // Handle any other tasks
-  // ...
+  // ...*/
 }
+
