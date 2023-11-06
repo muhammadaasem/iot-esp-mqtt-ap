@@ -1,6 +1,6 @@
 # iot-esp-mqtt-ap: 
 
-ESP based IoT codebase leverages MQTT for operation (sending / receiving data) and AP for OTA configuration.
+ESP based IoT codebase leverages MQTT for operation (sending / receiving data) and Access Point (AP) for OTA configuration.
 
 
 ## Introduction
@@ -29,15 +29,13 @@ git clone https://github.com/muhammadaasem/iot-esp-mqtt-ap.git
 
 3. Ensure you have all the necessary libraries installed. You can install libraries through the Arduino IDE Library Manager or by downloading them from the respective repositories and placing them in your libraries folder.
 
-4. Update the `ConfigParams.h` file with your specific WiFi and MQTT broker details.
+4. If required, update the `ConfigParams.h` file with your specific WiFi and MQTT broker details.
 
 5. Flash the code to your ESP8266 module using the correct board settings in the Arduino IDE.
 
 6. After uploading, the ESP8266 will start in Access Point mode. Connect to the ESP's network using the credentials set in `ConfigParams.h` to configure the device through the web interface.
 
 7. Once configured, the device will attempt to connect to the specified WiFi network and MQTT broker, and you can begin sending commands and receiving messages.
-
-For detailed instructions on library installation and board setup, refer to the official ESP8266 Arduino core documentation.
 
 ## Usage
 
@@ -58,14 +56,21 @@ For detailed instructions on library installation and board setup, refer to the 
 ### Testing with MQTTX
 
 1. Open MQTTX or any other MQTT client application.
-2. Create a new connection, and enter your MQTT broker's details.
-3. Subscribe to the topics you've set in the ESP configuration to listen for messages.
+2. Create a new connection, and enter your MQTT broker's details. (try with: broker.hivemq.com or broker.emqx.io)
+3. Subscribe to the topics you've set in the ESP configuration to listen for messages. (try with: testingESP1234/data)
 4. Publish messages to the operation topic to see the ESP respond or act on the commands.
-5. Observe the incoming messages from the ESP on the subscribed topics.
+   ```json
+{
+  "command": "setStatus",
+  "switch1": "OFF",
+  "switch2": "ON",
+  "switch3": "OFF"
+}
+   ```
 
-By following these steps, you can easily set up and test the MQTT communication with the ESP8266.
+6. Observe the incoming messages from the ESP on the subscribed topics.
 
-[Acknowledgements of contributors and content creators.]
+
 
 ## License
 
