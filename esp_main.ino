@@ -15,28 +15,22 @@ json payload:
 
 
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
 #include "ConfigParams.h"      // Include the ConfigParams definition
 #include "esp_eeprom.h"
 #include "esp_AP_server.h"
 #include "esp_MQTT_client.h"
-#include "esp_commander.h"
 
-// Initialize configuration with sample values
-ConfigParams config = {
-  "WIFI_SSID",             // SSID
-  "yourpassowrd",         // Password
-  "broker.emqx.io",   // MQTT server
-  1883,                   // MQTT port
-  "testingESP1234/data",      // Operation topic
-  "testingESP1234/config"          // Configuration topic
-};
+// create an instance only. Its values will be populated at AP mode using form 
+ConfigParams config;
+String command="";
+bool CONNECTION_IS_ALIVE=false;
 
 // Instances of your classes
 ESPEEPROMManager eepromManager;
 ESPAPServer apServer;
 ESPMQTTClient mqttClient(config);
-ESPCommander commander(config.relayPins); // Pass the relay pins from config
 
 void setup() {
   // Start the serial communication
@@ -45,41 +39,70 @@ void setup() {
 
   // Initialize EEPROM and load the configuration
   eepromManager.begin();
-  config = eepromManager.getConfig();
+  config = eepromManager.getConfig();// New device will show blank values for config parameters
 
   // Initialize the Access Point
   apServer.begin();
 
   // Initialize the MQTT client
-  mqttClient.begin(); //BUG01: if ssid, pw, broker, etc are not in eeprom correctly, then infinite loop goes on.
+  mqttClient.begin(); 
+  /* BUG01: infinite-connectivity-trials-for-MQTT 
+  description: if ssid, pw, broker, etc are not in eeprom correctly, then infinite loop goes on.
+  possible fix: attempt connectivity for MAX_MQTT_CONNECTION_TRIALS times after each 5 minutes delay.
+  set flag CONNECTION_IS_ALIVE = 1 if its connected otherwise set CONNECTION_IS_ALIVE = 0
+  */
 
-  // Initialize commander
-  // Remove commander.begin() if it does not exist in your ESPCommander class
+  // MY CODE for setup
+    pinMode(LED_BUILTIN, OUTPUT);
+
 }
 
 void loop() {
   // Handle AP server client
   apServer.handleClient();
 
-
-
-  // Handle MQTT client
-  mqttClient.handleClient();
-
-  // Check if a new MQTT message has been received
-  String command = mqttClient.getLastMessage();
-  if (command != "") {
-    // Pass the command to the commander
-    // commander.handleCommand(command); if its string only
-    commander.handleCommandJSON(command);
-
-
-    // Clear the last message to indicate it has been handled
-    mqttClient.setLastMessage("");
+  if (CONNECTION_IS_ALIVE==false) {
+    mqttClient.handleClient();
+    command = mqttClient.getLastMessage(); // Check if a new MQTT message has been received
+    mqttClient.setLastMessage("");   
   }
-
-
-  // Handle any other tasks
-  // ...*/
+  if (command != "")  handleCommandJSON(command);
+  
 }
 
+
+bool handleCommandJSON(const String& command) {
+  StaticJsonDocument<256> doc; // Adjust the size according to your needs
+  DeserializationError error = deserializeJson(doc, command);
+
+  if (error) {
+    Serial.print("JSON deserializeJson() failed: ");
+    Serial.println(error.c_str());
+    return false;
+  }
+
+  const char* commandStr = doc["command"]; // Extract the command value
+  if (!commandStr) {
+    Serial.println("JSON does not contain 'command'");
+    return false;
+  }
+
+  if (strcmp(commandStr, "TURN_ON") == 0) {
+    // Get additional parameters if needed
+    // Perform TURN ON action
+    digitalWrite(LED_BUILTIN, HIGH);
+    Serial.println("Command TURN_ON executed");
+  } else if (strcmp(commandStr, "TURN_OFF") == 0) {
+    // Perform TURN OFF action
+    
+    digitalWrite(LED_BUILTIN, LOW);
+    Serial.println("Command TURN_OFF executed");
+  } else {
+    Serial.print("UNKNOWN command executed: ");
+    Serial.println(commandStr);
+  }
+
+  // Add more else if blocks for additional commands
+
+  return true;
+}
