@@ -5,8 +5,6 @@ ESP based IoT codebase leverages MQTT for operation (sending / receiving data) a
 
 ## Introduction
 
-This project comprises an ESP-based system for IoT applications, providing a seamless interface for WiFi and MQTT connectivity to manage and control connected devices.
-
 The project utilizes the ESP8266 microcontroller to establish WiFi connections and communicate with MQTT brokers for IoT device management. It is designed for hobbyists and developers looking for a quick way to integrate IoT functionalities into their projects.
 
 
@@ -15,7 +13,7 @@ The project utilizes the ESP8266 microcontroller to establish WiFi connections a
 - ESP8266 boards
 
 ### Libraries
-- PubSubClient by Nick O'Leary (doc)[https://pubsubclient.knolleary.net/]
+- PubSubClient by Nick O'Leary [doc](https://pubsubclient.knolleary.net/)
 
 ## Installation
 
