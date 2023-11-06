@@ -21,11 +21,28 @@ json payload:
 #include "esp_AP_server.h"
 #include "esp_MQTT_client.h"
 
+ 
+
 #define AP_MODE 1
 #define STA_MODE 2
 #define MQTT_MODE 3
 
 int connection_mode=AP_MODE;
+
+int CONFIG_PIN=5; // The pin that boots the device in AP mode for configuration 
+int GPIO_PIN[]={4,12,13, 14};
+
+/**************
+GPIO0 -> D3 
+GPIO2 -> D4 
+GPIO4 -> D2   **
+GPIO5 -> D1   *
+GPIO12 -> D6  *
+GPIO13 -> D7  *
+GPIO14 -> D5  *
+GPIO15 -> D8
+GPIO16 -> D0
+***************/
 
 // create an instance only. Its values will be populated at AP mode using form 
 ConfigParams config;
@@ -40,6 +57,20 @@ void setup() {
   // Start the serial communication
   Serial.begin(115200);
   Serial.print("\n\nStarting....\n\n");
+
+
+  pinMode(CONFIG_PIN, INPUT_PULLUP); 
+
+  // Check the GPIO pin status
+  if (digitalRead(CONFIG_PIN) == LOW) {
+    // If the pin is LOW, set to AP_MODE
+    connection_mode = AP_MODE;
+    Serial.println("Starting in AP_MODE due to CONFIG_PIN being LOW.");
+  } else {
+    // If the pin is HIGH, set to MQTT_MODE
+    connection_mode = MQTT_MODE;
+    Serial.println("Starting in MQTT_MODE.");
+  }
 
   // Initialize EEPROM and load the configuration
   eepromManager.begin();
@@ -62,6 +93,7 @@ void setup() {
 
 
   // MY CODE for setup
+
     pinMode(LED_BUILTIN, OUTPUT);
 
 }
