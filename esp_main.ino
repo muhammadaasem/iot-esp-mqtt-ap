@@ -13,7 +13,6 @@ json payload:
 **************************/
 
 
-
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
@@ -22,10 +21,15 @@ json payload:
 #include "esp_AP_server.h"
 #include "esp_MQTT_client.h"
 
+#define AP_MODE 1
+#define STA_MODE 2
+#define MQTT_MODE 3
+
+int connection_mode=AP_MODE;
+
 // create an instance only. Its values will be populated at AP mode using form 
 ConfigParams config;
 String command="";
-bool CONNECTION_IS_ALIVE=false;
 
 // Instances of your classes
 ESPEEPROMManager eepromManager;
@@ -41,16 +45,21 @@ void setup() {
   eepromManager.begin();
   config = eepromManager.getConfig();// New device will show blank values for config parameters
 
-  // Initialize the Access Point
-  apServer.begin();
+  if (connection_mode >=AP_MODE){
+    apServer.begin(); // Initialize the Access Point
+  }
+  
+  if (connection_mode >=MQTT_MODE){
+    // Initialize the MQTT client
+    // mqttClient.begin();
+    mqttClient.begin(); 
+    /* BUG01: infinite-connectivity-trials-for-MQTT 
+    description: if ssid, pw, broker, etc are not in eeprom correctly, then infinite loop goes on.
+    possible fix: attempt connectivity for MAX_MQTT_CONNECTION_TRIALS times after each 5 minutes delay.
+    set flag CONNECTION_IS_ALIVE = 1 if its connected otherwise set CONNECTION_IS_ALIVE = 0
+    */
+  }
 
-  // Initialize the MQTT client
-  mqttClient.begin(); 
-  /* BUG01: infinite-connectivity-trials-for-MQTT 
-  description: if ssid, pw, broker, etc are not in eeprom correctly, then infinite loop goes on.
-  possible fix: attempt connectivity for MAX_MQTT_CONNECTION_TRIALS times after each 5 minutes delay.
-  set flag CONNECTION_IS_ALIVE = 1 if its connected otherwise set CONNECTION_IS_ALIVE = 0
-  */
 
   // MY CODE for setup
     pinMode(LED_BUILTIN, OUTPUT);
@@ -61,11 +70,15 @@ void loop() {
   // Handle AP server client
   apServer.handleClient();
 
-  if (CONNECTION_IS_ALIVE==false) {
+ 
+  if (connection_mode >=MQTT_MODE) {
+    
     mqttClient.handleClient();
     command = mqttClient.getLastMessage(); // Check if a new MQTT message has been received
     mqttClient.setLastMessage("");   
   }
+
+
   if (command != "")  handleCommandJSON(command);
   
 }
