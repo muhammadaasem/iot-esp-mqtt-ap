@@ -13,63 +13,141 @@ json payload:
 **************************/
 
 
-
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
 #include "ConfigParams.h"      // Include the ConfigParams definition
 #include "esp_eeprom.h"
 #include "esp_AP_server.h"
 #include "esp_MQTT_client.h"
-#include "esp_commander.h"
 
-// Initialize configuration with sample values
-ConfigParams config = {
-  "WIFI_SSID",             // SSID
-  "yourpassowrd",         // Password
-  "broker.emqx.io",   // MQTT server
-  1883,                   // MQTT port
-  "testingESP1234/data",      // Operation topic
-  "testingESP1234/config"          // Configuration topic
-};
+ 
+
+#define AP_MODE 1
+#define STA_MODE 2
+#define MQTT_MODE 3
+
+int connection_mode=AP_MODE;
+
+int CONFIG_PIN=5; // The pin that boots the device in AP mode for configuration 
+int GPIO_PIN[]={4,12,13, 14};
+
+/**************
+GPIO0 -> D3 
+GPIO2 -> D4 
+GPIO4 -> D2   **
+GPIO5 -> D1   *
+GPIO12 -> D6  *
+GPIO13 -> D7  *
+GPIO14 -> D5  *
+GPIO15 -> D8
+GPIO16 -> D0
+***************/
+
+// create an instance only. Its values will be populated at AP mode using form 
+ConfigParams config;
+String command="";
 
 // Instances of your classes
 ESPEEPROMManager eepromManager;
 ESPAPServer apServer;
 ESPMQTTClient mqttClient(config);
-ESPCommander commander(config.relayPins); // Pass the relay pins from config
 
 void setup() {
   // Start the serial communication
   Serial.begin(115200);
   Serial.print("\n\nStarting....\n\n");
 
+
+  pinMode(CONFIG_PIN, INPUT_PULLUP); 
+
+  // Check the GPIO pin status
+  if (digitalRead(CONFIG_PIN) == LOW) {
+    // If the pin is LOW, set to AP_MODE
+    connection_mode = AP_MODE;
+    Serial.println("Starting in AP_MODE due to CONFIG_PIN being LOW.");
+  } else {
+    // If the pin is HIGH, set to MQTT_MODE
+    connection_mode = MQTT_MODE;
+    Serial.println("Starting in MQTT_MODE.");
+  }
+
   // Initialize EEPROM and load the configuration
   eepromManager.begin();
-  config = eepromManager.getConfig();
+  config = eepromManager.getConfig();// New device will show blank values for config parameters
 
-  // Initialize the Access Point
-  apServer.begin();
+  if (connection_mode >=AP_MODE){
+    apServer.begin(); // Initialize the Access Point
+  }
+  
+  if (connection_mode >=MQTT_MODE){
+    // Initialize the MQTT client
+    // mqttClient.begin();
+    mqttClient.begin(); 
+    /* BUG01: infinite-connectivity-trials-for-MQTT 
+    description: if ssid, pw, broker, etc are not in eeprom correctly, then infinite loop goes on.
+    possible fix: attempt connectivity for MAX_MQTT_CONNECTION_TRIALS times after each 5 minutes delay.
+    set flag CONNECTION_IS_ALIVE = 1 if its connected otherwise set CONNECTION_IS_ALIVE = 0
+    */
+  }
 
-  // Initialize the MQTT client
-  mqttClient.begin();
 
-  // Initialize commander
-  // Remove commander.begin() if it does not exist in your ESPCommander class
+  // MY CODE for setup
+
+    pinMode(LED_BUILTIN, OUTPUT);
+
 }
 
 void loop() {
   // Handle AP server client
   apServer.handleClient();
 
-  // Handle MQTT client
-  mqttClient.handleClient();
+ 
+  if (connection_mode >=MQTT_MODE) {
+    
+    mqttClient.handleClient();
+    command = mqttClient.getLastMessage(); // Check if a new MQTT message has been received
+    mqttClient.setLastMessage("");   
+  }
 
-  // Handle commander tasks
-  // You would typically have some logic to read commands and pass them to the commander
-  // For example:
-  // String command = readCommand(); // Implement readCommand to get commands from an input source
-  // commander.handleCommand(command);
 
-  // Handle any other tasks
-  // ...
+  if (command != "")  handleCommandJSON(command);
+  
+}
+
+
+bool handleCommandJSON(const String& command) {
+  StaticJsonDocument<256> doc; // Adjust the size according to your needs
+  DeserializationError error = deserializeJson(doc, command);
+
+  if (error) {
+    Serial.print("JSON deserializeJson() failed: ");
+    Serial.println(error.c_str());
+    return false;
+  }
+
+  const char* commandStr = doc["command"]; // Extract the command value
+  if (!commandStr) {
+    Serial.println("JSON does not contain 'command'");
+    return false;
+  }
+
+  if (strcmp(commandStr, "TURN_ON") == 0) {
+    // Get additional parameters if needed
+    // Perform TURN ON action
+    digitalWrite(LED_BUILTIN, HIGH);
+    Serial.println("Command TURN_ON executed");
+  } else if (strcmp(commandStr, "TURN_OFF") == 0) {
+    // Perform TURN OFF action
+    
+    digitalWrite(LED_BUILTIN, LOW);
+    Serial.println("Command TURN_OFF executed");
+  } else {
+    Serial.print("UNKNOWN command executed: ");
+    Serial.println(commandStr);
+  }
+
+  // Add more else if blocks for additional commands
+
+  return true;
 }
