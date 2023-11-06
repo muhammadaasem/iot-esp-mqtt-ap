@@ -1,11 +1,10 @@
 
 /**************************
 broker: broker.hivemq.com
-topic: testlocation1/opp11
+topic: testingESP1234/data
 json payload:
 {
   "command": "setStatus",
-  "timestamp": 11111,
   "switch1": "OFF",
   "switch2": "ON",
   "switch3": "OFF"
@@ -25,12 +24,12 @@ json payload:
 
 // Initialize configuration with sample values
 ConfigParams config = {
-  "WorldNet33",             // SSID
-  "Pakistan123!!3",         // Password
+  "WIFI_SSID",             // SSID
+  "yourpassowrd",         // Password
   "broker.emqx.io",   // MQTT server
   1883,                   // MQTT port
-  "testlocation1/topic_operation",      // Operation topic
-  "config/topic"          // Configuration topic
+  "testingESP1234/data",      // Operation topic
+  "testingESP1234/config"          // Configuration topic
 };
 
 // Instances of your classes
