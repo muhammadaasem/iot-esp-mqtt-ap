@@ -29,9 +29,11 @@ json payload:
 
 int connection_mode=AP_MODE;
 
+/*
 int CONFIG_PIN=5; // The pin that boots the device in AP mode for configuration 
 int GPIO_PIN[]={4,12,13, 14};
-
+*/
+int GPIO_PIN[]={D3, D6, D7, D5}, CONFIG_PIN=D1;
 /**************
 GPIO0 -> D3 
 GPIO2 -> D4 
@@ -81,20 +83,16 @@ void setup() {
   }
   
   if (connection_mode >=MQTT_MODE){
-    // Initialize the MQTT client
-    // mqttClient.begin();
     mqttClient.begin(); 
-    /* BUG01: infinite-connectivity-trials-for-MQTT 
-    description: if ssid, pw, broker, etc are not in eeprom correctly, then infinite loop goes on.
-    possible fix: attempt connectivity for MAX_MQTT_CONNECTION_TRIALS times after each 5 minutes delay.
-    set flag CONNECTION_IS_ALIVE = 1 if its connected otherwise set CONNECTION_IS_ALIVE = 0
-    */
   }
 
 
   // MY CODE for setup
-
     pinMode(LED_BUILTIN, OUTPUT);
+    
+    for (int i = 0; i < sizeof(GPIO_PIN) / sizeof(GPIO_PIN[0]); ++i) {
+      pinMode(GPIO_PIN[i], OUTPUT);
+    }
 
 }
 
@@ -132,18 +130,19 @@ bool handleCommandJSON(const String& command) {
     return false;
   }
 
-  if (strcmp(commandStr, "TURN_ON") == 0) {
-    // Get additional parameters if needed
-    // Perform TURN ON action
-    digitalWrite(LED_BUILTIN, HIGH);
-    Serial.println("Command TURN_ON executed");
-  } else if (strcmp(commandStr, "TURN_OFF") == 0) {
-    // Perform TURN OFF action
-    
-    digitalWrite(LED_BUILTIN, LOW);
-    Serial.println("Command TURN_OFF executed");
+  if (strcmp(commandStr, "setStatus") == 0) {
+    // Process setStatus command by setting GPIOs according to the JSON fields
+    digitalWrite(GPIO_PIN[0], doc["switch1"] == "ON" ? HIGH : LOW);
+    digitalWrite(GPIO_PIN[1], doc["switch2"] == "ON" ? HIGH : LOW);
+    digitalWrite(GPIO_PIN[2], doc["switch3"] == "ON" ? HIGH : LOW);
+    digitalWrite(GPIO_PIN[3], doc["switch4"] == "ON" ? HIGH : LOW);
+    Serial.println("Status set according to command");
+  } else if (strcmp(commandStr, "getStatus") == 0) {
+    // Process getStatus command by publishing the JSON to topic_config
+    //mqttClient.publish(topic_config, command); // Ensure mqttClient and topic_config are accessible
+    Serial.println("Status published to topic_config");
   } else {
-    Serial.print("UNKNOWN command executed: ");
+    Serial.print("Unknown command: ");
     Serial.println(commandStr);
   }
 
